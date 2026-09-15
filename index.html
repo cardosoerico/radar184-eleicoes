@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radar 184 · Eleições 2026</title>
+<meta name="description" content="Para onde foi o dinheiro das emendas parlamentares nos 184 municípios do Ceará. Consulta por cidade e por parlamentar, com metodologia aberta.">
+<meta name="author" content="Erico Cardoso">
+<meta property="og:title" content="Radar 184 · Eleições 2026">
+<meta property="og:description" content="Para onde foi o dinheiro das emendas parlamentares nos 184 municípios do Ceará.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/logo-radar-184.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/estilo.css">
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <a class="logo" href="#/"><img src="assets/logo-radar-184.png" alt="Radar 184"></a>
+    <span class="tag">Eleições 2026</span>
+    <div class="busca">
+      <input type="search" id="q-topo" placeholder="cidade ou parlamentar" autocomplete="off"
+             aria-label="Buscar cidade ou parlamentar">
+      <div class="achados" id="r-topo"></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="conteudo"></main>
+
+<div id="dica" role="status"></div>
+
+<noscript>
+  <p style="max-width:640px;margin:40px auto;padding:0 20px">
+    Este site precisa de JavaScript para montar as telas a partir do arquivo de dados.
+    Os dados brutos estão disponíveis em <code>assets/dados.js</code> e a metodologia
+    em <code>METODOLOGIA.md</code>.
+  </p>
+</noscript>
+
+<script src="assets/dados.js"></script>
+<script src="assets/mapa.js"></script>
+<script src="assets/parl.js"></script>
+<script src="assets/noticias.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

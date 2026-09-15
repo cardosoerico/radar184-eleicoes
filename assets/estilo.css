@@ -1,0 +1,236 @@
+/* ================================================================
+   Radar 184 · Eleições 2026
+   Identidade: fundo branco, tinta #141A2E, azul #2451F5 (parlamentar
+   com nome), laranja #F5730F (decisão coletiva).
+   Par de cores validado para contraste e daltonismo sobre branco.
+   ================================================================ */
+
+:root{
+  --page:#FFFFFF;
+  --card:#FFFFFF;
+  --tinta:#141A2E;
+  --ink:#101426;
+  --ink-2:#49516A;
+  --ink-3:#767E96;
+  --rule:#DEE3EC;
+  --azul:#2451F5;
+  --laranja:#F5730F;
+  --lavado:#EEF1F7;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:"Space Grotesk","Inter",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--sans);
+     font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:var(--azul)}
+.wrap{max-width:880px;margin:0 auto;padding-left:20px;padding-right:20px;
+      padding-block:0 64px}
+
+/* ---------------- topo ---------------- */
+header{border-bottom:1px solid var(--rule);margin-bottom:30px;position:sticky;top:0;
+       background:rgba(255,255,255,.94);backdrop-filter:blur(8px);z-index:5}
+.bar{max-width:880px;margin:0 auto;padding:15px 20px;display:flex;align-items:center;
+     justify-content:space-between;gap:14px;flex-wrap:wrap}
+.logo{display:block;text-decoration:none;line-height:0}
+.logo img{height:29px;width:auto;display:block}
+@media(max-width:480px){.logo img{height:24px}}
+.tag{font-size:11px;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-2);
+     border:1px solid var(--rule);border-radius:100px;padding:4px 10px;white-space:nowrap}
+
+/* ---------------- busca ---------------- */
+.busca{position:relative;flex:1 1 210px;max-width:260px}
+.busca input{font-family:var(--sans);font-size:13.5px;padding:8px 12px;width:100%;
+     border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink)}
+.busca input:focus{outline:2px solid var(--azul);outline-offset:-1px}
+.achados{position:absolute;top:calc(100% + 5px);left:0;right:0;background:#fff;
+     border:1px solid var(--rule);border-radius:10px;box-shadow:0 10px 28px rgba(16,20,38,.13);
+     max-height:320px;overflow:auto;z-index:9;padding:5px}
+.achados:empty{display:none}
+.achados button{display:flex;width:100%;gap:9px;align-items:center;text-align:left;
+     background:none;border:0;padding:8px 9px;border-radius:7px;cursor:pointer;
+     font-family:var(--sans);font-size:13.5px;color:var(--ink)}
+.achados button:hover,.achados button[aria-selected=true]{background:var(--lavado)}
+.achados .tipo{margin-left:auto;font-size:11px;color:var(--ink-3);white-space:nowrap}
+
+/* ---------------- home ---------------- */
+.capa{padding:14px 0 6px}
+.capa h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,5.6vw,44px);
+     line-height:1.1;letter-spacing:-.025em;margin:0 0 14px;max-width:19ch}
+.capa .linha-fina{font-size:16.5px;color:var(--ink-2);max-width:58ch;margin:0 0 30px}
+.portas{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:38px}
+@media(max-width:620px){.portas{grid-template-columns:1fr}}
+.porta{border:1px solid var(--rule);border-radius:13px;padding:20px}
+.porta h2{font-family:var(--display);font-size:17px;font-weight:700;margin:0 0 4px}
+.porta p{font-size:13.5px;color:var(--ink-2);margin:0 0 14px}
+.porta .busca{max-width:none}
+.numeros{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:36px}
+@media(max-width:620px){.numeros{grid-template-columns:1fr}}
+
+/* ---------------- cabeçalho de página ---------------- */
+.cidade{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;
+        margin-bottom:26px}
+.cidade .txt{min-width:0}
+.eyebrow{font-size:12px;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-3);
+     margin:0 0 6px}
+h1.nome-pg{font-family:var(--display);font-weight:700;font-size:clamp(28px,6vw,40px);
+     line-height:1.1;margin:0 0 5px;letter-spacing:-.02em}
+.sub{color:var(--ink-2);margin:0;font-size:14px}
+.sub .chip{margin-left:0}
+.voltar{display:inline-block;font-size:13px;margin:0 0 18px;text-decoration:none}
+.voltar:hover{text-decoration:underline}
+
+.mapa{flex:none;width:124px;margin-top:2px}
+.mapa svg{display:block;width:100%;height:auto}
+.mapa figcaption{font-size:11px;color:var(--ink-3);text-align:center;margin-top:6px;
+     line-height:1.35}
+@media(max-width:620px){
+  .cidade{flex-direction:column;gap:18px}
+  .mapa{width:104px;align-self:flex-start;margin-top:0}
+  .perfil{width:100%}
+  .heroi{padding:24px 20px}
+}
+@media(max-width:420px){
+  .perfil .foto,.perfil .foto-vazia{width:58px;height:58px}
+  .perfil .foto-vazia{font-size:18px}
+}
+
+.perfil{display:flex;gap:16px;align-items:center;min-width:0}
+.perfil .foto{width:72px;height:72px;border-radius:50%;flex:none;object-fit:cover;
+     object-position:50% 16%;background:var(--lavado);border:1px solid var(--rule)}
+.perfil .foto-vazia{width:72px;height:72px;border-radius:50%;flex:none;background:var(--lavado);
+     border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;
+     font-family:var(--display);font-size:22px;font-weight:700;color:var(--ink-3)}
+
+/* ---------------- herói e ladrilhos ---------------- */
+.heroi{background:var(--tinta);border-radius:14px;padding:30px 28px;margin-bottom:14px;color:#fff}
+.heroi .rot{font-size:13px;color:#AAB3CC;margin:0 0 8px}
+.heroi .num{font-family:var(--display);font-weight:700;
+     font-size:clamp(23px,6.3vw,52px);line-height:1.05;letter-spacing:-.025em;margin:0}
+.heroi .pe{font-size:13px;color:#7C87A6;margin:12px 0 0}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:34px}
+@media(max-width:620px){.tiles{grid-template-columns:1fr}}
+.tile{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:18px}
+.tile .rot{font-size:12.5px;color:var(--ink-2);margin:0 0 6px}
+.tile .num{font-family:var(--display);font-weight:700;font-size:26px;line-height:1.1;
+     letter-spacing:-.02em;margin:0}
+.tile .pe{font-size:12.5px;color:var(--ink-3);margin:5px 0 0}
+
+/* ---------------- seções ---------------- */
+section{margin-bottom:38px}
+h2.sec{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:-.01em;
+     margin:0 0 4px}
+.dica{color:var(--ink-2);font-size:13.5px;margin:0 0 18px;max-width:62ch}
+.dica strong,.nota strong{color:var(--ink-2);font-weight:600}
+.lead{margin-bottom:10px}
+.nota{font-size:12px;color:var(--ink-3);margin:14px 0 0;max-width:66ch;line-height:1.5}
+.vazio{font-size:13.5px;color:var(--ink-3);border:1px dashed var(--rule);border-radius:10px;
+     padding:16px;margin:0}
+
+/* ---------------- barra empilhada ---------------- */
+.pilha{display:flex;gap:2px;height:24px;margin-bottom:16px}
+.pilha span{display:block;height:100%}
+.pilha span:first-child{border-radius:4px 0 0 4px}
+.pilha span:last-child{border-radius:0 4px 4px 0}
+.chaves{display:flex;flex-wrap:wrap;gap:10px 28px}
+.chave{display:flex;gap:9px;align-items:flex-start}
+.ponto{width:10px;height:10px;border-radius:3px;margin-top:5px;flex:none}
+.chave .t{font-size:13.5px;color:var(--ink-2);margin:0}
+.chave .v{font-family:var(--display);font-weight:700;font-size:17px;margin:1px 0 0;
+     letter-spacing:-.01em}
+
+/* ---------------- barras ---------------- */
+.linha{margin-bottom:13px}
+.linha .cab{display:flex;justify-content:space-between;align-items:center;gap:14px;
+     margin-bottom:6px}
+.linha .nome{font-size:13.5px;color:var(--ink);font-weight:500}
+.linha .nome em{font-style:normal;color:var(--ink-3);font-weight:400;font-size:12px}
+.linha .val{font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums;
+     white-space:nowrap}
+.trilho{height:14px}
+.barra{height:14px;border-radius:0 4px 4px 0;min-width:3px;transition:filter .12s}
+.linha:hover .barra{filter:saturate(1.25) brightness(.94)}
+a.linha{display:block;text-decoration:none;color:inherit}
+a.linha:hover .nome{text-decoration:underline}
+
+.quem{display:flex;align-items:center;gap:9px;min-width:0}
+.retrato{width:30px;height:30px;border-radius:50%;flex:none;object-fit:cover;
+     object-position:50% 18%;background:var(--lavado);border:1px solid var(--rule)}
+.iniciais{width:30px;height:30px;border-radius:50%;flex:none;background:var(--lavado);
+     border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;
+     font-size:11px;font-weight:600;color:var(--ink-3)}
+.chip{font-size:10.5px;font-weight:500;color:var(--ink-2);background:var(--lavado);
+     border-radius:100px;padding:2px 7px;margin-left:7px;white-space:nowrap;vertical-align:1px}
+
+/* ---------------- ranking por ano (abas em CSS puro) ---------------- */
+.secao-ano{margin-top:2px}
+.aba-radio{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.aba{display:inline-block;cursor:pointer;user-select:none;font-size:12.5px;font-weight:500;
+     color:var(--ink-2);background:var(--lavado);border-radius:100px;padding:6px 14px;
+     margin:0 6px 16px 0}
+.aba-radio:checked + .aba{background:var(--tinta);color:#fff}
+.aba-radio:focus-visible + .aba{outline:2px solid var(--azul);outline-offset:1px}
+.painel-ano{display:none}
+.ano-2024:checked ~ .painel-2024,
+.ano-2025:checked ~ .painel-2025,
+.ano-2026:checked ~ .painel-2026,
+.ano-2027:checked ~ .painel-2027{display:block}
+
+/* ---------------- colunas (série anual) ---------------- */
+.colunas{display:flex;gap:14px;align-items:flex-end;height:150px;
+     border-bottom:1px solid var(--rule);padding-bottom:0}
+.col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;
+     height:100%;gap:7px}
+.col .v{font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.col .mark{width:100%;max-width:64px;background:var(--azul);border-radius:4px 4px 0 0;
+     min-height:3px;transition:filter .12s}
+.col:hover .mark{filter:saturate(1.25) brightness(.94)}
+.eixo{display:flex;gap:14px;margin-top:8px}
+.eixo span{flex:1;text-align:center;font-size:12px;color:var(--ink-3)}
+
+/* ---------------- tabelas ---------------- */
+table.simples{width:100%;border-collapse:collapse;font-size:13.5px}
+table.simples th{text-align:left;font-weight:500;color:var(--ink-3);font-size:11.5px;
+     letter-spacing:.07em;text-transform:uppercase;padding:0 0 9px;
+     border-bottom:1px solid var(--rule)}
+table.simples td{padding:11px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+table.simples td.n,table.simples th.n{text-align:right;font-variant-numeric:tabular-nums;
+     white-space:nowrap}
+table.simples tr:last-child td{border-bottom:0}
+.pj{color:var(--ink-3);font-size:12px;display:block}
+.rolagem{overflow-x:auto}
+
+details{margin-top:14px}
+summary{cursor:pointer;font-size:13px;color:var(--azul);width:fit-content}
+summary::marker{color:var(--ink-3)}
+details table{margin-top:12px}
+.baixar{margin-top:12px;font-size:12.5px;background:none;border:1px solid var(--rule);
+     border-radius:7px;padding:6px 11px;cursor:pointer;color:var(--ink-2);
+     font-family:var(--sans)}
+.baixar:hover{background:var(--lavado)}
+
+/* ---------------- notícias ---------------- */
+.noticias{list-style:none;margin:0;padding:0}
+.noticias li{border-bottom:1px solid var(--rule)}
+.noticias li:last-child{border-bottom:0}
+.noticias a{display:block;text-decoration:none;color:inherit;padding:13px 0}
+.noticias a:hover .titulo-noticia{text-decoration:underline;color:var(--azul)}
+.titulo-noticia{display:block;font-size:13.5px;color:var(--ink);font-weight:500;line-height:1.4}
+.meta-noticia{display:block;font-size:12px;color:var(--ink-3);margin-top:4px}
+
+/* ---------------- rodapé ---------------- */
+footer{border-top:1px solid var(--rule);padding-top:26px;margin-top:52px;
+     font-size:12.5px;color:var(--ink-2);line-height:1.65}
+footer h3{font-family:var(--display);font-size:13px;font-weight:700;color:var(--ink);
+     margin:0 0 10px;letter-spacing:.02em}
+footer p{margin:0 0 11px;max-width:74ch}
+footer ol{margin:0 0 11px;padding-left:18px;max-width:74ch}
+footer li{margin-bottom:5px}
+footer strong{color:var(--ink)}
+
+/* ---------------- tooltip ---------------- */
+#dica{position:fixed;pointer-events:none;background:var(--tinta);color:#fff;font-size:12.5px;
+     padding:7px 10px;border-radius:7px;opacity:0;transition:opacity .1s;z-index:20;
+     white-space:nowrap;font-variant-numeric:tabular-nums}
+
+@media print{header{position:static}.busca,.baixar,#dica{display:none}}
