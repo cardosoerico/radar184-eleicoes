@@ -230,14 +230,22 @@ function colunas(serie){
 function blocoNoticias(id){
   var itens = NOTICIAS[id] || [];
   if(!itens.length){
-    return '<p class="vazio">Nenhuma notícia encontrada no Google Notícias para este nome.</p>';
+    return '<div class="quadro-noticias"><p class="vazio">Nenhuma notícia encontrada no Google ' +
+           'Notícias para este nome.</p></div>';
   }
-  return '<ul class="noticias">' + itens.map(function(n){
+  return '<div class="quadro-noticias"><ul class="noticias">' + itens.map(function(n, i){
     return '<li><a href="'+esc(n.link)+'" target="_blank" rel="noopener noreferrer">' +
-      '<span class="titulo-noticia">'+esc(n.titulo)+'</span>' +
-      '<span class="meta-noticia">'+esc(n.fonte)+(n.data ? ' · '+esc(dataNoticia(n.data)) : '')+'</span>' +
+      '<span class="num-noticia">'+(i+1)+'</span>' +
+      '<span class="corpo-noticia">' +
+        '<span class="titulo-noticia">'+esc(n.titulo)+'</span>' +
+        '<span class="meta-noticia">' +
+          (n.fonte ? '<span class="fonte-noticia">'+esc(n.fonte)+'</span>' : '') +
+          (n.data ? '<span class="data-noticia">'+esc(dataNoticia(n.data))+'</span>' : '') +
+        '</span>' +
+      '</span>' +
+      '<span class="seta-noticia" aria-hidden="true">↗</span>' +
       '</a></li>';
-  }).join('') + '</ul>';
+  }).join('') + '</ul></div>';
 }
 
 function tabela(cabec, linhas){
