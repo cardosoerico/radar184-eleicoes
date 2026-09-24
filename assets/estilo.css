@@ -171,11 +171,20 @@ a.linha:hover .nome{text-decoration:underline}
 .aba-radio:checked + .aba{background:var(--tinta);color:#fff}
 .aba-radio:focus-visible + .aba{outline:2px solid var(--azul);outline-offset:1px}
 .painel-ano{display:none}
+.ano-2014:checked ~ .painel-2014,
+.ano-2015:checked ~ .painel-2015,
+.ano-2016:checked ~ .painel-2016,
+.ano-2017:checked ~ .painel-2017,
+.ano-2018:checked ~ .painel-2018,
+.ano-2019:checked ~ .painel-2019,
+.ano-2020:checked ~ .painel-2020,
+.ano-2021:checked ~ .painel-2021,
+.ano-2022:checked ~ .painel-2022,
+.ano-2023:checked ~ .painel-2023,
 .ano-2024:checked ~ .painel-2024,
 .ano-2025:checked ~ .painel-2025,
 .ano-2026:checked ~ .painel-2026,
 .ano-2027:checked ~ .painel-2027{display:block}
-
 /* ---------------- colunas (série anual) ---------------- */
 .colunas{display:flex;gap:14px;align-items:flex-end;height:150px;
      border-bottom:1px solid var(--rule);padding-bottom:0}
