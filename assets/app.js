@@ -270,7 +270,7 @@ function rodape(){
   brl(D.meta.total_pago) + ' pagos, os ' + num(D.meta.municipios) +
   ' municípios do Ceará, ' + num(D.meta.autores) + ' autores de emenda.</p>' +
   '<p><strong>Fonte:</strong> Controladoria-Geral da União — Emendas Parlamentares por Documentos ' +
-  'de Despesa (portaldatransparencia.gov.br). Três arquivos anuais: 2024, 2025 e 2026 — o de 2026 ' +
+  'de Despesa (portaldatransparencia.gov.br). Um arquivo por ano, de 2014 a 2026 — o de 2026 ' + +
   'está incompleto porque o ano ainda corre. A CGU atualiza a base diariamente. ' +
   'Malha municipal: IBGE. Fotos e situação de mandato: listas oficiais da Câmara dos Deputados e ' +
   'do Senado Federal.</p>' +
