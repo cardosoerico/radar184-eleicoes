@@ -434,9 +434,7 @@ function telaParlamentar(id){
   '<div class="cidade"><div class="perfil">' + retrato + '<div class="txt">' +
     '<p class="eyebrow">'+(ehIndividual(a) ? 'Parlamentar' : 'Emenda coletiva')+'</p>' +
     '<h1 class="nome-pg">'+esc(nome)+'</h1>' +
-    '<p class="sub">' + (p
-      ? 'Em exercício hoje · '+esc(p.casa)+' <span class="chip">'+esc(p.sigla)+'</span>'
-      : 'Sem mandato federal em exercício hoje') + '</p>' +
+    (p ? '<p class="sub">Em exercício hoje · '+esc(p.casa)+' <span class="chip">'+esc(p.sigla)+'</span></p>' : '') +
   '</div></div>' +
   (mun.length ? svgMapa(mun.map(function(r){ return String(r.m); }),
       mun.length + (mun.length === 1 ? ' município alcançado' : ' municípios alcançados')) : '') +
