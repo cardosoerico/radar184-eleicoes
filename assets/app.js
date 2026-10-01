@@ -420,7 +420,8 @@ function telaParlamentar(id){
   var mun = (porAut[id] || []).filter(function(r){ return r.v > 0; }).sort(desc);
   var fun = (funcAut[id] || []).filter(function(r){ return r.v > 0; }).sort(desc);
   var fav = (favAut[id] || []).filter(function(r){ return r.v > 0; }).sort(desc);
-  var ano = (anoAut[id] || []).slice().sort(function(x,y){ return x.a - y.a; });
+  var ano = (anoAut[id] || []).filter(function(r){ return r.v > 0; })
+            .sort(function(x,y){ return x.a - y.a; });
 
   var retrato = p && p.foto
     ? '<img class="foto" src="'+esc(p.foto)+'" alt="Retrato oficial de '+esc(nome)+'" ' +
@@ -453,7 +454,8 @@ function telaParlamentar(id){
 
   '<section><h2 class="sec">Por ano de pagamento</h2>' +
   '<p class="dica">Quanto saiu em cada ano. O ano de 2026 está incompleto — a base vai até ' +
-  data(D.meta.fim) + '.</p>' + colunas(ano) + '</section>' +
+  data(D.meta.fim) + '.</p>' +
+  barras(ano.map(function(r){ return {nome: String(r.a), v: r.v}; })) + '</section>' +
 
   '<section><h2 class="sec">Onde o dinheiro caiu</h2>' +
   '<p class="dica">Municípios que receberam, do maior para o menor. Clique para ver a cidade ' +
