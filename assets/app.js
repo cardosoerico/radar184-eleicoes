@@ -1,6 +1,6 @@
 /* ================================================================
    Radar 184 · Eleições 2026 — aplicação
-   Lê window.DADOS, window.MAPA e window.PARL (assets/*.js).
+   Lê window.DADOS, window.MAPA, window.PARL e window.PARLAMENTARES (assets/*.js).
    Rotas por hash:  #/            capa
                     #/m/<ibge>    município
                     #/p/<autor>   parlamentar
@@ -9,6 +9,7 @@
 'use strict';
 
 var D = window.DADOS, MAPA = window.MAPA, PARL = window.PARL || {}, NOTICIAS = window.NOTICIAS || {};
+var PERFIS = window.PARLAMENTARES || {};   // fichas oficiais (buscar_mandatos.py)
 var AZUL = '#2451F5', LARANJA = '#F5730F';
 
 /* ---------- formatação ---------- */
@@ -57,8 +58,78 @@ D.autores.forEach(function(a){ AUT[a.id] = a; });
 function ehIndividual(a){ return a && a.tipo === 'parlamentar'; }
 function nomeAutor(a){
   if(!a) return 'Autor não informado';
+  var f = PERFIS[a.id];
+  if(f && f.nome) return f.nome === f.nome.toUpperCase() ? titulo(f.nome) : f.nome;
   var p = PARL[a.id];
   return (p && p.nome) ? p.nome : titulo(a.nome);   // grafia oficial quando existe
+}
+/* foto para todos os que têm ficha oficial; etiqueta de partido só para quem está em exercício */
+function retratoDe(id){
+  var f = PERFIS[id], p = PARL[id];
+  if(f) return {foto: f.foto, sigla: emExercicio(f) ? f.partido + '-' + f.uf : ''};
+  return {foto: p && p.foto, sigla: p && p.sigla};
+}
+function emExercicio(f){ return !!(f && f.situacao && f.situacao.situacao === 'em_exercicio'); }
+
+/* ---------- situação e histórico (textos combinados com o Rico em 01/10/2026) ---------- */
+function fem(f, m, fe){ return f && f.sexo === 'F' ? fe : m; }
+function cargo(f, casa){
+  return casa === 'Senado' ? fem(f, 'Senador', 'Senadora') : fem(f, 'Deputado federal', 'Deputada federal');
+}
+function dataCurta(iso){ var p = String(iso).slice(0,10).split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+function mesAno(iso){
+  var m = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto',
+           'setembro','outubro','novembro','dezembro'];
+  var p = String(iso).split('-'); return m[Number(p[1])-1] + ' de ' + p[0];
+}
+function mandatoSenadoHoje(f){
+  var hoje = new Date().toISOString().slice(0,10);
+  return ((f.senado && f.senado.mandatos) || []).filter(function(m){
+    return m.inicio <= hoje && hoje <= m.fim; })[0];
+}
+function textoSituacao(f){
+  var s = f && f.situacao;
+  if(!s || s.situacao === 'mandato_encerrado') return '';   // sem rótulo: o histórico fala por si
+  var chip = (f.partido && f.uf) ? ' <span class="chip">'+esc(f.partido+'-'+f.uf)+'</span>' : '';
+  if(s.situacao === 'em_exercicio')
+    return '<p class="sub"><strong>'+cargo(f, s.casa)+' em exercício</strong>'+chip+'</p>';
+  var suplente = /suplent/i.test(s.participacao || '');
+  if(!suplente){
+    var fim = s.casa === 'Senado' ? (mandatoSenadoHoje(f) || {}).fim : '2027-01-31';
+    return '<p class="sub"><strong>'+cargo(f, s.casa)+' em licença desde '+dataCurta(s.desde)+'</strong>' +
+      (fim ? ' · mandato até '+mesAno(fim) : '') +
+      (s.casa === 'Senado' && s.motivo
+        ? '<br><span class="motivo">Motivo registrado pelo Senado: '+esc(s.motivo.toLowerCase())+'</span>' : '') +
+      '</p>';
+  }
+  if(s.casa === 'Senado'){
+    var n = (String(s.participacao).match(/^\d/) || [''])[0];
+    var rot = (n ? n + fem(f, 'º', 'ª') + ' suplente' : 'Suplente');
+    var anterior = new Date(s.desde + 'T12:00:00'); anterior.setDate(anterior.getDate() - 1);
+    return '<p class="sub"><strong>'+rot+(s.titular ? ' de '+esc(s.titular) : '')+' no Senado</strong>' +
+      ' · exerceu o mandato até '+mesAno(anterior.toISOString().slice(0,10)) +
+      (s.motivo ? ' <span class="motivo">('+esc(s.motivo.toLowerCase())+', segundo o Senado)</span>' : '') +
+      '</p>';
+  }
+  return '<p class="sub"><strong>Suplente de deputado federal</strong>'+chip +
+    ' · exerceu o mandato na legislatura atual</p>';
+}
+function anosLegislatura(l){ var i = 2007 + (l - 53) * 4; return i + '–' + (i + 4); }
+function textoHistorico(f){
+  if(!f) return '';
+  var partes = [];
+  if(f.camara) partes.push('Câmara dos Deputados (' + f.camara.legislaturas.map(anosLegislatura).join(', ') + ')');
+  if(f.senado) partes.push('Senado Federal (' + f.senado.mandatos.slice()
+    .sort(function(x, y){ return x.inicio < y.inicio ? -1 : 1; })
+    .map(function(m){
+      var t = m.inicio.slice(0,4) + '–' + m.fim.slice(0,4);
+      return /suplent/i.test(m.participacao || '') ? t + ', como suplente' : t;
+    }).join('; ') + ')');
+  var casa = f.situacao && f.situacao.casa;
+  return '<p class="hist"><span class="rot">Mandatos federais (registros oficiais a partir de 2007):</span> ' +
+    partes.join(' · ') + '</p>' +
+    (f.pagina ? '<p class="hist"><a href="'+esc(f.pagina)+'" target="_blank" rel="noopener noreferrer">' +
+      'Página oficial ' + (casa === 'Senado' ? 'no Senado' : 'na Câmara') + ' →</a></p>' : '');
 }
 
 function agrupa(lista, chave){
@@ -88,9 +159,9 @@ function itensRankMun(lista){
 }
 function itensRankAut(lista){
   return lista.slice().sort(porPos).map(function(r){
-    var a = AUT[r.p], p = PARL[r.p];
+    var a = AUT[r.p], p = retratoDe(r.p);
     return {nome: nomeAutor(a), v: r.v, cor: AZUL, retrato: true,
-            foto: p && p.foto, sigla: p && p.sigla, href: '#/p/'+r.p};
+            foto: p.foto, sigla: p.sigla, href: '#/p/'+r.p};
   });
 }
 
@@ -343,9 +414,9 @@ function telaMunicipio(id){
   var coletivos   = pares.filter(function(r){ return !ehIndividual(AUT[r.p]); });
 
   var itens = pares.filter(function(r){ return r.v > 0; }).map(function(r){
-    var a = AUT[r.p], ind = ehIndividual(a), p = PARL[r.p];
+    var a = AUT[r.p], ind = ehIndividual(a), p = retratoDe(r.p);
     return {nome: nomeAutor(a), v: r.v, cor: ind ? AZUL : LARANJA, retrato: true,
-            coletiva: !ind, foto: p && p.foto, sigla: p && p.sigla,
+            coletiva: !ind, foto: p.foto, sigla: p.sigla,
             sufixo: ind ? '' : 'coletiva', href: ind ? '#/p/'+r.p : ''};
   });
 
@@ -414,7 +485,7 @@ function telaMunicipio(id){
 function telaParlamentar(id){
   var a = AUT[id];
   if(!a) return '<p class="vazio">Parlamentar não encontrado.</p>';
-  var p = PARL[id];
+  var p = retratoDe(id), f = PERFIS[id];
   var nome = nomeAutor(a);
 
   var mun = (porAut[id] || []).filter(function(r){ return r.v > 0; }).sort(desc);
@@ -434,7 +505,8 @@ function telaParlamentar(id){
   '<div class="cidade"><div class="perfil">' + retrato + '<div class="txt">' +
     '<p class="eyebrow">'+(ehIndividual(a) ? 'Parlamentar' : 'Emenda coletiva')+'</p>' +
     '<h1 class="nome-pg">'+esc(nome)+'</h1>' +
-    (p ? '<p class="sub">Em exercício hoje · '+esc(p.casa)+' <span class="chip">'+esc(p.sigla)+'</span></p>' : '') +
+    (f ? textoSituacao(f) + textoHistorico(f)
+       : (PARL[id] ? '<p class="sub">Em exercício hoje · '+esc(PARL[id].casa)+' <span class="chip">'+esc(PARL[id].sigla)+'</span></p>' : '')) +
   '</div></div>' +
   (mun.length ? svgMapa(mun.map(function(r){ return String(r.m); }),
       mun.length + (mun.length === 1 ? ' município alcançado' : ' municípios alcançados')) : '') +

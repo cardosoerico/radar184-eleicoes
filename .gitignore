@@ -1,0 +1,2 @@
+# arquivos que o Python gera sozinho ao importar um script do outro
+__pycache__/
