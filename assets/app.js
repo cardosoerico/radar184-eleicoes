@@ -10,7 +10,8 @@
 
 var D = window.DADOS, MAPA = window.MAPA, PARL = window.PARL || {}, NOTICIAS = window.NOTICIAS || {};
 var PERFIS = window.PARLAMENTARES || {};   // fichas oficiais (buscar_mandatos.py)
-var AZUL = '#2451F5', LARANJA = '#F5730F';
+var AZUL = '#2451F5', LARANJA = '#F5730F', CINZA = '#A8B0C6';
+var R = window.RESULTADOS;   // assets/resultados.js — votos 2026 x emendas empenhadas 2022-2026
 
 /* ---------- formatação ---------- */
 var fBRL  = new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL'});
@@ -274,9 +275,9 @@ function barras(itens, teto){
       '<div class="cab"><span class="quem">'+av+'<span class="nome">'+esc(i.nome) +
       (i.sufixo ? ' <em>· '+esc(i.sufixo)+'</em>' : '') +
       (i.sigla ? '<span class="chip">'+esc(i.sigla)+'</span>' : '') +
-      '</span></span><span class="val">'+brl0(i.v)+'</span></div>' +
+      '</span></span><span class="val">'+(i.txt || brl0(i.v))+'</span></div>' +
       '<div class="trilho"><div class="barra" style="width:'+(100*i.v/max)+'%;background:'+
-      (i.cor||AZUL)+'"></div></div>';
+      (i.cor||AZUL)+'"></div></div>' + (i.nota ? '<p class="nota-barra">'+i.nota+'</p>' : '');
     var t = esc(i.nome + ' — ' + brl(i.v));
     return i.href
       ? '<a class="linha" href="'+i.href+'" data-t="'+t+'">'+dentro+'</a>'
@@ -369,6 +370,10 @@ function telaCapa(){
     '<p class="linha-fina">Todo pagamento de emenda parlamentar registrado nos ' +
     num(D.meta.municipios) + ' municípios do estado entre ' + data(D.meta.inicio) + ' e ' +
     data(D.meta.fim) + '. Procure pela sua cidade ou por um parlamentar.</p>' +
+    (R ? '<a class="destaque-res" href="#/resultados"><span class="sel-res">Resultados 2026</span>' +
+      '<span class="tit-res">Quanto seu voto custou?</span>' +
+      '<span class="txt-res">Votos de cada deputado federal, cidade por cidade, ao lado do dinheiro que ele destinou em emendas desde 2022.</span>' +
+      '<span class="seta-res">Ver os resultados →</span></a>' : '') +
     '<div class="portas">' +
       '<div class="porta"><h2>Pela sua cidade</h2>' +
       '<p>Quanto chegou, de quem veio e em que área caiu.</p>' +
@@ -563,6 +568,184 @@ function telaParlamentar(id){
   blocoNoticias(id) + '</section>';
 }
 
+
+/* ============== RESULTADOS 2026 · quanto seu voto custou ============== */
+var RP = {}, RPM = {}, RAREA = {}, RORDEM = [];
+if(R){
+  R.pm.forEach(function(r){ (RPM[r[0]] = RPM[r[0]] || []).push({m: r[1], votos: r[2], emp: r[3]}); });
+  R.area.forEach(function(r){ (RAREA[r[0]] = RAREA[r[0]] || []).push({f: r[1], v: r[2]}); });
+  R.parl.forEach(function(p){
+    p.votos = 0; p.emp = 0;
+    (RPM[p.p] || []).forEach(function(x){ p.votos += x.votos; p.emp += x.emp; });
+    p.vpv = p.votos ? p.emp / p.votos : 0;
+    p.completo = p.anos.length === 5;
+    RP[p.p] = p;
+  });
+  RORDEM = R.parl.slice().sort(function(a,b){ return b.votos - a.votos; });
+}
+function nomeRes(p){ return AUT[p.p] ? nomeAutor(AUT[p.p]) : titulo(p.u); }
+function anosTxt(p){ return p.anos.length ? p.anos.join(' · ') : 'nenhum'; }
+function mediana(v){
+  if(!v.length) return 0;
+  v = v.slice().sort(function(a,b){ return a-b; });
+  var m = Math.floor(v.length/2);
+  return v.length % 2 ? v[m] : (v[m-1] + v[m]) / 2;
+}
+var GRUPOS = [
+  {k:'retrib',  nome:'Retribuição',     cor:AZUL,    def:'Muito dinheiro destinado e muitos votos.'},
+  {k:'semret',  nome:'Sem retorno',     cor:LARANJA, def:'Muito dinheiro destinado e poucos votos.'},
+  {k:'semdin',  nome:'Voto sem dinheiro', cor:'#0E9F83', def:'Muitos votos e pouco dinheiro destinado.'},
+  {k:'distante',nome:'Distante',        cor:CINZA,   def:'Pouco dinheiro destinado e poucos votos.'}
+];
+/* "muito" = acima da mediana do próprio parlamentar: dos votos entre os municípios onde teve voto,
+   e do valor entre os municípios onde destinou algum valor */
+function classifica(lista){
+  var medV = mediana(lista.filter(function(x){ return x.votos > 0; }).map(function(x){ return x.votos; }));
+  var medE = mediana(lista.filter(function(x){ return x.emp > 0; }).map(function(x){ return x.emp; }));
+  return lista.map(function(x){
+    var altoV = x.votos > 0 && x.votos >= medV, altoE = x.emp > 0 && x.emp >= medE;
+    var k = altoV && altoE ? 'retrib' : altoE ? 'semret' : altoV ? 'semdin' : 'distante';
+    return {m: x.m, votos: x.votos, emp: x.emp, k: k};
+  });
+}
+function rotuloGrupo(k){ return GRUPOS.filter(function(g){ return g.k === k; })[0].nome; }
+function nomeMun(id){ return MUN[id] ? MUN[id].nome : String(id); }
+
+function resParlMun(id){
+  var p = RP[id], cl = classifica(RPM[id] || []);
+  var vm = cl.filter(function(x){ return x.votos > 0; }).length;
+  var em = cl.filter(function(x){ return x.emp > 0; }).length;
+  var aviso = p.completo ? '' :
+    '<p class="aviso-res menor"><strong>Atenção:</strong> '+esc(nomeRes(p))+' teve empenho em apenas ' +
+    p.anos.length + ' dos 5 anos (' + anosTxt(p) + '). O valor por voto não é comparável com o de quem teve os cinco anos.</p>';
+  var topo = '<div class="tiles">' +
+    tile('Votos em 2026', num(p.votos), num(vm)+' municípios com voto') +
+    tile('Destinado 2022–2026', brl0(p.emp), num(em)+' municípios receberam') +
+    tile('Valor por voto', brl(p.vpv), 'empenho em: ' + anosTxt(p)) + '</div>' + aviso;
+  var cards = GRUPOS.map(function(g){
+    var l = cl.filter(function(x){ return x.k === g.k; });
+    var ord = g.k === 'semdin' ? function(a,b){ return b.votos - a.votos; } : function(a,b){ return b.emp - a.emp; };
+    var top = g.k === 'distante' ? [] : l.slice().sort(ord).slice(0,5);
+    return '<div class="grupo" style="border-top-color:'+g.cor+'"><p class="g-num">'+num(l.length)+'</p>' +
+      '<p class="g-nome">'+g.nome+'</p><p class="g-def">'+g.def+'</p>' +
+      (top.length ? '<ul class="g-lista">' + top.map(function(x){
+        return '<li><a href="#/m/'+x.m+'">'+esc(nomeMun(x.m))+'</a><span>'+num(x.votos)+' votos · '+brl0(x.emp)+'</span></li>';
+      }).join('') + '</ul>' : '<p class="g-def">Municípios sem destaque nos dois lados.</p>') + '</div>';
+  }).join('');
+  var linhas = cl.slice().sort(function(a,b){ return b.votos - a.votos; }).map(function(x){
+    return [nomeMun(x.m), num(x.votos), brl0(x.emp), x.votos ? brl(x.emp/x.votos) : '—', rotuloGrupo(x.k)];
+  });
+  return topo + '<div class="grupos">' + cards + '</div>' +
+    '<details><summary>Ver os '+num(cl.length)+' municípios</summary>' +
+    tabela(['Município','Votos 2026','Destinado','R$ por voto','Relação'], linhas) +
+    botaoCSV('Baixar CSV','resultados-'+slug(nomeRes(p))+'.csv',
+      ['parlamentar','municipio','votos_2026','empenhado_2022_2026','relacao'],
+      cl.map(function(x){ return [nomeRes(p), nomeMun(x.m), x.votos, String(x.emp).replace('.',','), rotuloGrupo(x.k)]; })) +
+    '</details>';
+}
+function resParlArea(id){
+  var p = RP[id], l = (RAREA[id] || []).slice().sort(desc);
+  var tot = l.reduce(function(a,x){ return a + x.v; }, 0);
+  var itens = l.map(function(x){
+    var esp = /encargos especiais/i.test(x.f);
+    return {nome: esp ? 'Transferências Especiais' : titulo(x.f), v: x.v, cor: esp ? CINZA : AZUL,
+            sufixo: esp ? 'área não informada' : '', txt: brl0(x.v)+' · '+pct(x.v, tot)};
+  });
+  return '<p class="nota-sel">Parlamentar: <strong>'+esc(nomeRes(p))+'</strong> · total '+brl0(tot)+
+         ' (inclui valores destinados ao estado, sem município)</p>' + barras(itens, 10);
+}
+function ligaResultados(){
+  var sel = document.getElementById('sel-parl'); if(!sel) return;
+  function mostra(){
+    document.getElementById('res-mun').innerHTML  = resParlMun(sel.value);
+    document.getElementById('res-area').innerHTML = resParlArea(sel.value);
+    document.querySelectorAll('#res-mun [data-t],#res-area [data-t]').forEach(function(el){ liga(el, el.dataset.t); });
+  }
+  sel.addEventListener('change', mostra);
+  mostra();
+}
+
+function telaResultados(){
+  if(!R) return '<p class="vazio">Dados de resultados não encontrados.</p>';
+  var totV = 0, totE = 0;
+  R.parl.forEach(function(p){ totV += p.votos; totE += p.emp; });
+  var rank = R.parl.slice().sort(function(a,b){ return b.vpv - a.vpv; }).map(function(p){
+    var f = retratoDe(p.p);
+    return {nome: nomeRes(p), v: p.vpv, txt: brl(p.vpv)+' por voto', cor: p.completo ? AZUL : CINZA,
+      retrato: true, foto: f.foto, sigla: p.t, href: AUT[p.p] ? '#/p/'+p.p : '',
+      nota: '<strong>'+brl0(p.emp)+'</strong> ÷ '+num(p.votos)+' votos · empenho em ' + esc(anosTxt(p)) +
+            (p.completo ? '' : ' <span class="alerta-anos">— só '+p.anos.length+' de 5 anos: não comparável</span>')};
+  });
+  var parts = R.part.map(function(r){
+    var vt = r[2] + r[3];
+    return {sigla: r[1], votos: vt, nom: r[2], leg: r[3], cand: r[4], eleitos: r[5], dos23: r[6], emp: r[7], pc: r[8]};
+  });
+  var barrasPart = parts.slice(0,10).map(function(x){
+    return {nome: x.sigla, v: x.votos, txt: num(x.votos)+' votos · '+x.pc.toLocaleString('pt-BR',{minimumFractionDigits:1})+'%',
+      nota: x.dos23 ? 'Deputados do partido entre os 23: <strong>'+x.dos23+'</strong> · destinaram '+brl0(x.emp)+' · '+brl(x.emp/x.votos)+' por voto do partido'
+                    : 'Nenhum dos 23 parlamentares — sem valor destinado a comparar'};
+  });
+  var opcoes = RORDEM.map(function(p){
+    return '<option value="'+p.p+'">'+esc(nomeRes(p))+' · '+num(p.votos)+' votos</option>';
+  }).join('');
+  return '<a class="voltar" href="#/">← início</a>' +
+  '<div class="capa res">' +
+    '<p class="eyebrow">Resultados 2026</p>' +
+    '<h1 class="nome-pg">Quanto seu voto custou?</h1>' +
+    '<p class="linha-fina">Em 2026, 23 parlamentares que já destinavam emendas ao Ceará disputaram a reeleição para deputado federal. ' +
+    'Dividimos o que cada um destinou entre 2022 e 2026 pelos votos que recebeu, no estado e em cada município.</p>' +
+    '<div class="aviso-res"><strong>Como ler.</strong> “Destinado” é o valor <em>empenhado</em>: o dinheiro que o parlamentar reservou na emenda. ' +
+    'Não é o valor pago, que é o usado no resto do site, então os totais desta aba não batem com os das outras telas. ' +
+    'R$ por voto é uma conta de divisão. Ela não prova que o dinheiro comprou o voto.</div>' +
+    '<div class="tiles">' +
+      tile('Parlamentares', num(R.parl.length), 'disputaram voto de novo em 2026') +
+      tile('Votos nominais', num(totV), 'nos 23, em 184 municípios') +
+      tile('Destinado 2022–2026', brl0(totE), 'empenhado, com município') +
+    '</div>' +
+
+    '<section><h2 class="sec">Quanto cada voto custou</h2>' +
+    '<p class="dica">Valor empenhado em emendas individuais de 2022 a 2026, dividido pelos votos nominais de 2026. ' +
+    'Quanto maior a barra, mais dinheiro foi destinado para cada voto recebido. Só entram aqui os 12 com empenho nos cinco anos.</p>' +
+    barras(rank.filter(function(x){ return x.cor === AZUL; })) +
+    '<h3 class="sub-sec">Não comparáveis: empenho em menos de cinco anos</h3>' +
+    '<p class="dica">O valor por voto destes parlamentares usa menos anos de empenho que o dos demais. ' +
+    'Ficam fora do ranking para não parecerem mais baratos ou mais caros do que são.</p>' +
+    barras(rank.filter(function(x){ return x.cor !== AZUL; })) + '</section>' +
+
+    '<section><h2 class="sec">Onde o dinheiro e o voto se encontram</h2>' +
+    '<p class="dica">Escolha um parlamentar para ver, município por município, quanto ele destinou e quantos votos recebeu. ' +
+    '“Muito” e “pouco” são medidos contra a mediana do próprio parlamentar.</p>' +
+    '<label class="seletor">Parlamentar <select id="sel-parl">'+opcoes+'</select></label>' +
+    '<div id="res-mun"></div></section>' +
+
+    '<section><h2 class="sec">Em que áreas o dinheiro foi destinado</h2>' +
+    '<p class="dica">Função orçamentária das emendas do parlamentar escolhido acima, segundo a CGU.</p>' +
+    '<div class="aviso-res menor"><strong>Cerca de 37% do valor é “Transferências Especiais”</strong> (a chamada emenda Pix). ' +
+    'Elas aparecem como “Encargos especiais” porque a área só é definida pelo município depois do repasse. ' +
+    'Esse dinheiro não tem área conhecida neste site.</div>' +
+    '<div id="res-area"></div></section>' +
+
+    '<section><h2 class="sec">Votos e emendas por partido</h2>' +
+    '<p class="dica">Votos do partido (nominais mais legenda) ao lado do valor destinado pelos deputados dele. ' +
+    'O partido é o da candidatura em 2026: quem mudou de partido desde 2022 aparece no partido atual. ' +
+    'PRD e PSOL não tinham nenhum dos 23 parlamentares, então não há valor a comparar.</p>' +
+    barras(barrasPart) +
+    '<details><summary>Ver os '+parts.length+' partidos</summary>' +
+    tabela(['Partido','Votos','Eleitos','Dos 23','Destinado','R$ por voto'], parts.map(function(x){
+      return [x.sigla, num(x.votos), x.eleitos, x.dos23, brl0(x.emp), x.dos23 ? brl(x.emp/x.votos) : '—'];
+    })) + '</details></section>' +
+
+    '<section class="metodo-res"><h2 class="sec">Metodologia</h2>' +
+    '<p class="dica"><strong>Fontes:</strong> votos por seção eleitoral do TSE (Deputado Federal, Ceará, 2026); emendas da CGU ' +
+    '(Portal da Transparência), fase de empenho, pelo ano do documento, de 2022 a 2026.</p>' +
+    '<p class="dica"><strong>Quem entra:</strong> os 23 parlamentares que destinaram emendas individuais ao Ceará e disputaram voto de novo em 2026, eleitos ou não.</p>' +
+    '<p class="dica"><strong>Limites:</strong> (1) só emendas individuais entram na conta, porque as de bancada, comissão e relator não têm um parlamentar por trás; ' +
+    '(2) cerca de R$ 117 milhões foram destinados ao estado inteiro, sem município, e ficam fora das telas por município; ' +
+    '(3) a lista inclui só quem já destinava emendas, então candidatos novos, mesmo bem votados, não aparecem; ' +
+    '(4) voto de legenda só entra na visão por partido.</p></section>' +
+  '</div>';
+}
+
 /* ================================ busca ============================== */
 function chave(s){
   return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
@@ -619,6 +802,7 @@ function desenha(){
   var html;
   if(h[0] === 'm' && h[1])      html = telaMunicipio(h[1]);
   else if(h[0] === 'p' && h[1]) html = telaParlamentar(h[1]);
+  else if(h[0] === 'resultados') html = telaResultados();
   else                          html = telaCapa();
 
   document.getElementById('conteudo').innerHTML = html + rodape();
@@ -626,6 +810,7 @@ function desenha(){
   ligaBusca('q-mun', 'r-mun', 'município');
   ligaBusca('q-par', 'r-par', 'parlamentar');
   ligaBusca('q-topo', 'r-topo', null);
+  ligaResultados();
   document.title = (document.querySelector('.nome-pg')
     ? document.querySelector('.nome-pg').textContent + ' — '
     : '') + 'Radar 184 · Eleições 2026';

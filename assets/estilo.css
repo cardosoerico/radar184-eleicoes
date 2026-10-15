@@ -247,3 +247,42 @@ footer strong{color:var(--ink)}
      white-space:nowrap;font-variant-numeric:tabular-nums}
 
 @media print{header{position:static}.busca,.baixar,#dica{display:none}}
+
+/* ---------------- Resultados 2026 ---------------- */
+.nav-res{font-size:12.5px;font-weight:600;color:#fff;background:var(--laranja);text-decoration:none;
+     border-radius:100px;padding:6px 13px;white-space:nowrap}
+.nav-res:hover{filter:brightness(.93)}
+.destaque-res{display:block;background:var(--tinta);color:#fff;text-decoration:none;border-radius:14px;
+     padding:24px 26px;margin-bottom:26px;border-left:6px solid var(--laranja)}
+.destaque-res:hover{filter:brightness(1.12)}
+.destaque-res .sel-res{display:inline-block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+     font-weight:600;background:var(--laranja);color:#fff;border-radius:100px;padding:3px 10px;margin-bottom:12px}
+.destaque-res .tit-res{display:block;font-family:var(--display);font-weight:700;
+     font-size:clamp(26px,4.6vw,36px);letter-spacing:-.02em;line-height:1.1;margin-bottom:8px}
+.destaque-res .txt-res{display:block;font-size:14.5px;color:#C5CCE0;max-width:56ch;margin-bottom:12px}
+.destaque-res .seta-res{font-weight:600;color:#FFB777;font-size:14px}
+.eyebrow{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--laranja);font-weight:600;margin:0 0 8px}
+.aviso-res{background:var(--lavado);border-left:4px solid var(--laranja);border-radius:6px;
+     padding:14px 16px;font-size:13.5px;color:var(--ink-2);margin:0 0 24px;max-width:70ch}
+.aviso-res.menor{font-size:12.5px;padding:10px 13px;margin:0 0 16px}
+.aviso-res strong{color:var(--ink)}
+.nota-barra{font-size:12px;color:var(--ink-3);margin:5px 0 0}
+.nota-barra strong{color:var(--ink-2);font-weight:600}
+.alerta-anos{color:#B4540A;font-weight:500}
+.seletor{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--ink-3);margin:0 0 18px;max-width:420px}
+.seletor select{font-family:var(--sans);font-size:14px;padding:9px 11px;border:1px solid var(--rule);
+     border-radius:8px;background:#fff;color:var(--ink)}
+.grupos{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0 4px}
+@media(max-width:620px){.grupos{grid-template-columns:1fr}}
+.grupo{border:1px solid var(--rule);border-top:4px solid var(--rule);border-radius:10px;padding:14px 16px}
+.g-num{font-family:var(--display);font-weight:700;font-size:28px;line-height:1;margin:0}
+.g-nome{font-weight:600;font-size:14.5px;margin:4px 0 2px}
+.g-def{font-size:12.5px;color:var(--ink-3);margin:0 0 8px}
+.g-lista{list-style:none;margin:8px 0 0;padding:0}
+.g-lista li{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:5px 0;
+     border-top:1px solid var(--rule)}
+.g-lista li span{color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.nota-sel{font-size:12.5px;color:var(--ink-3);margin:0 0 14px}
+.metodo-res{border-top:1px solid var(--rule);padding-top:26px}
+
+.sub-sec{font-family:var(--display);font-size:15.5px;font-weight:700;margin:30px 0 4px;color:var(--ink-2)}
